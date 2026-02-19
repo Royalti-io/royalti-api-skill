@@ -94,11 +94,17 @@ Once installed, the skill activates automatically when your conversation involve
 ├── README.md
 ├── LICENSE
 ├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest (Claude Code)
+│   └── plugin.json                    # Plugin manifest (Claude Code)
 └── skills/
     └── royalti-api/
-        └── SKILL.md         # The skill (Agent Skills standard)
+        ├── SKILL.md                   # The skill (Agent Skills standard)
+        └── references/
+            ├── examples-javascript.md # Node.js/TypeScript examples
+            ├── examples-python.md     # Python examples
+            └── examples-php.md        # PHP examples
 ```
+
+Code examples cover authentication, CRUD operations, pagination, file upload, WebSocket events, and webhook receivers for each language.
 
 ## Compatibility
 
@@ -110,6 +116,8 @@ This skill follows the [Agent Skills open standard](https://agentskills.io/speci
 
 - **API Base URL:** `https://api.royalti.io`
 - **Developer Docs:** [apidocs.royalti.io](https://apidocs.royalti.io)
+- **MCP Server:** [royalti.io/mcp](https://royalti.io/mcp) — AI assistant integration for direct API interaction
+- **MCP Setup Guide:** [royalti.io/help/setting-up-the-royalti-mcp-server](https://royalti.io/help/setting-up-the-royalti-mcp-server)
 
 ## License
 

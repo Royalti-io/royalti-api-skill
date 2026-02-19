@@ -769,6 +769,18 @@ reference, metadata
 
 ---
 
-## 9. Further Reading
+## 9. Code Examples
 
-For full endpoint details, request/response schemas, and the interactive API explorer, visit the [Royalti.io developer documentation](https://apidocs.royalti.io).
+Language-specific integration examples are available in the `references/` directory:
+
+- `references/examples-javascript.md` — Node.js/TypeScript client, auth, CRUD, file upload, WebSocket, Express webhook receiver
+- `references/examples-python.md` — Python client, auth, pagination, file upload, Flask webhook receiver, socketio
+- `references/examples-php.md` — PHP client, auth, pagination, file upload, Laravel and plain PHP webhook receivers
+
+Load these files when the developer is working in a specific language.
+
+## 10. Further Reading
+
+- **API Explorer:** [apidocs.royalti.io](https://apidocs.royalti.io)
+- **MCP Server:** [royalti.io/mcp](https://royalti.io/mcp) — AI assistant integration for direct API interaction
+- **MCP Setup Guide:** [royalti.io/help/setting-up-the-royalti-mcp-server](https://royalti.io/help/setting-up-the-royalti-mcp-server)
