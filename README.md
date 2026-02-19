@@ -50,7 +50,7 @@ Then to update: `cd royalti-api-skill && git pull`
 
 1. Download the `skills/royalti-api/` folder from this repo
 2. Zip it: `zip -r royalti-api.zip royalti-api/`
-3. Open Claude Desktop → **Settings** → **Features**
+3. Open Claude Desktop → **Settings** → **Capabilities** → **Skills**
 4. Upload the `royalti-api.zip` file
 
 The skill will be available in all your Claude Desktop conversations.
@@ -64,10 +64,14 @@ cp -r skills/royalti-api ~/.openclaw/skills/
 
 Or add the path to `skills.load.extraDirs` in `~/.openclaw/openclaw.json`.
 
-### OpenSkills (universal installer)
+### Universal installers
 
 ```bash
+# OpenSkills
 npx openskills install Royalti-io/royalti-api-skill
+
+# Vercel Skills
+npx skills add Royalti-io/royalti-api-skill
 ```
 
 ### Cursor / Codex / GitHub Copilot / Gemini CLI / Others
