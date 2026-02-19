@@ -109,7 +109,7 @@ This skill follows the [Agent Skills open standard](https://agentskills.io/speci
 [Royalti.io](https://royalti.io) is a royalty management platform for music labels, distributors, and publishers. The API provides programmatic access to manage artists, tracks, releases, royalty splits, payments, analytics, and more.
 
 - **API Base URL:** `https://api.royalti.io`
-- **Developer Docs:** [docs.royalti.io](https://docs.royalti.io)
+- **Developer Docs:** [apidocs.royalti.io](https://apidocs.royalti.io)
 
 ## License
 

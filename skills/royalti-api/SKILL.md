@@ -771,4 +771,4 @@ reference, metadata
 
 ## 9. Further Reading
 
-For full endpoint details, request/response schemas, and the interactive API explorer, visit the [Royalti.io developer documentation](https://docs.royalti.io).
+For full endpoint details, request/response schemas, and the interactive API explorer, visit the [Royalti.io developer documentation](https://apidocs.royalti.io).
