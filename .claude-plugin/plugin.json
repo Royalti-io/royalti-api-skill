@@ -1,9 +1,0 @@
-{
-  "name": "royalti-api",
-  "version": "1.0.0",
-  "description": "Royalti.io REST API v2.6 developer reference skill. Covers authentication, CRUD patterns, pagination, error handling, webhooks, WebSocket events, and data models.",
-  "author": "Royalti.io",
-  "license": "MIT",
-  "homepage": "https://github.com/Royalti-io/royalti-api-skill",
-  "skills": ["skills/royalti-api"]
-}

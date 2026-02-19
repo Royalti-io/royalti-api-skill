@@ -18,14 +18,7 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **OpenAI Codex**, **
 
 ## Installation
 
-### Claude Code (plugin)
-
-```bash
-/plugin marketplace add Royalti-io/royalti-api-skill
-/plugin install royalti-api
-```
-
-### Claude Code (manual)
+### Claude Code
 
 ```bash
 # Clone and copy to your project
@@ -110,8 +103,6 @@ Once installed, the skill activates automatically when your conversation involve
 .
 ├── README.md
 ├── LICENSE
-├── .claude-plugin/
-│   └── plugin.json                    # Plugin manifest (Claude Code)
 └── skills/
     └── royalti-api/
         ├── SKILL.md                   # The skill (Agent Skills standard)
