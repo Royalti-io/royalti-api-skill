@@ -36,6 +36,23 @@ cp -r royalti-api-skill/skills/royalti-api .claude/skills/
 cp -r royalti-api-skill/skills/royalti-api ~/.claude/skills/
 ```
 
+### Claude Code (auto-updating via symlink)
+
+Use a symlink instead of copying to get updates automatically with `git pull`:
+
+```bash
+# Clone once
+git clone https://github.com/Royalti-io/royalti-api-skill.git
+
+# Symlink into your project
+ln -s "$(pwd)/royalti-api-skill/skills/royalti-api" .claude/skills/royalti-api
+
+# Or symlink globally (all projects)
+ln -s "$(pwd)/royalti-api-skill/skills/royalti-api" ~/.claude/skills/royalti-api
+```
+
+Then to update: `cd royalti-api-skill && git pull`
+
 ### Claude Desktop
 
 1. Download the `skills/royalti-api/` folder from this repo
