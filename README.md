@@ -1,10 +1,10 @@
 # Royalti.io API Skill
 
-An [Agent Skill](https://agentskills.io) that gives your AI coding assistant complete knowledge of the [Royalti.io](https://royalti.io) REST API v2.6. When installed, your agent can help you write integration code, debug API calls, set up webhooks, and navigate the 287-endpoint API surface without you having to explain the patterns each time.
+An [Agent Skill](https://agentskills.io) that gives your AI assistant complete knowledge of the [Royalti.io](https://royalti.io) REST API v2.6. When installed, your agent can help you write integration code, debug API calls, set up webhooks, and navigate the 287-endpoint API surface without you having to explain the patterns each time.
+
+Works with **Claude Code**, **Claude Desktop**, **Cursor**, **OpenAI Codex**, **GitHub Copilot**, **OpenClaw**, **Gemini CLI**, **Amp**, **Goose**, **Roo Code**, **OpenCode**, **Letta**, and any tool that supports the [Agent Skills open standard](https://agentskills.io/specification).
 
 ## What's included
-
-The skill covers:
 
 - **Authentication** — Two-step JWT flow, API keys (RWAK/RUAK), OAuth, rate limits, RBAC roles
 - **Request patterns** — Pagination, filtering, search, bulk operations
@@ -21,51 +21,64 @@ The skill covers:
 ### Claude Code (plugin)
 
 ```bash
-/plugin marketplace add Royalti-io/api-reference
+/plugin marketplace add Royalti-io/royalti-api-skill
 /plugin install royalti-api
 ```
 
 ### Claude Code (manual)
 
-Copy the skill directory into your project or global skills:
-
 ```bash
-# Project-level (this project only)
-mkdir -p .claude/skills
-cp -r skills/royalti-api .claude/skills/
+# Clone and copy to your project
+git clone https://github.com/Royalti-io/royalti-api-skill.git
+cp -r royalti-api-skill/skills/royalti-api .claude/skills/
 
-# Global (all your projects)
-mkdir -p ~/.claude/skills
-cp -r skills/royalti-api ~/.claude/skills/
+# Or install globally (all projects)
+cp -r royalti-api-skill/skills/royalti-api ~/.claude/skills/
 ```
 
-Or clone and copy:
+### Claude Desktop
+
+1. Download the `skills/royalti-api/` folder from this repo
+2. Zip it: `zip -r royalti-api.zip royalti-api/`
+3. Open Claude Desktop → **Settings** → **Features**
+4. Upload the `royalti-api.zip` file
+
+The skill will be available in all your Claude Desktop conversations.
+
+### OpenClaw
 
 ```bash
-git clone https://github.com/Royalti-io/api-reference.git
-cp -r api-reference/skills/royalti-api ~/.claude/skills/
+# Copy into your OpenClaw skills directory
+cp -r skills/royalti-api ~/.openclaw/skills/
 ```
 
-### OpenSkills (cross-agent)
+Or add the path to `skills.load.extraDirs` in `~/.openclaw/openclaw.json`.
+
+### OpenSkills (universal installer)
 
 ```bash
-npx openskills install Royalti-io/api-reference
+npx openskills install Royalti-io/royalti-api-skill
 ```
 
-### Cursor / Codex CLI / Gemini CLI
+### Cursor / Codex / GitHub Copilot / Gemini CLI / Others
 
-This skill follows the [Agent Skills open standard](https://agentskills.io/specification) and is compatible with any tool that supports `SKILL.md` files. Copy the `skills/royalti-api/` directory into the appropriate location for your tool:
+This skill follows the [Agent Skills open standard](https://agentskills.io/specification). Copy `skills/royalti-api/` into the skills directory for your tool:
 
 | Tool | Path |
 |------|------|
 | Cursor | `.cursor/skills/royalti-api/` |
-| Codex CLI | `.codex/skills/royalti-api/` |
+| OpenAI Codex | `.codex/skills/royalti-api/` |
+| GitHub Copilot (VS Code) | `.github/skills/royalti-api/` |
 | Gemini CLI | `.gemini/skills/royalti-api/` |
+| Amp | `.amp/skills/royalti-api/` |
+| Goose | `.goose/skills/royalti-api/` |
 | Roo Code | `.roo/skills/royalti-api/` |
+| OpenCode | `.opencode/skills/royalti-api/` |
+| Letta | `.letta/skills/royalti-api/` |
 
 ## Usage
 
-Once installed, the skill activates automatically when your conversation involves the Royalti API. You can also reference it directly:
+Once installed, the skill activates automatically when your conversation involves the Royalti API. Examples:
 
 ```
 "How do I authenticate with the Royalti API?"
@@ -81,11 +94,15 @@ Once installed, the skill activates automatically when your conversation involve
 ├── README.md
 ├── LICENSE
 ├── .claude-plugin/
-│   └── plugin.json          # Plugin manifest
+│   └── plugin.json          # Plugin manifest (Claude Code)
 └── skills/
     └── royalti-api/
         └── SKILL.md         # The skill (Agent Skills standard)
 ```
+
+## Compatibility
+
+This skill follows the [Agent Skills open standard](https://agentskills.io/specification), an open specification originally developed by Anthropic and adopted by 25+ tools. Any AI coding assistant or agent that supports `SKILL.md` files can use this skill — write once, use everywhere.
 
 ## About Royalti.io
 
