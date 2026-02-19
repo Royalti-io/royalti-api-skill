@@ -2,7 +2,7 @@
 name: royalti-api
 description: Royalti.io REST API v2.6 pattern reference for developers. Covers authentication, CRUD patterns, pagination, error handling, webhooks, WebSocket events, and data models. Use when helping developers integrate with the Royalti API (api.royalti.io) or when writing integration code, API documentation, or troubleshooting API issues.
 license: MIT
-compatibility: Designed for Claude Code, also works with Cursor, Codex CLI, Gemini CLI, and other Agent Skills compatible tools.
+compatibility: Works with Claude Code, Claude Desktop, Cursor, OpenAI Codex, GitHub Copilot, OpenClaw, Gemini CLI, Amp, Goose, Roo Code, OpenCode, Letta, and any tool supporting the Agent Skills open standard.
 metadata:
   author: Royalti.io
   version: "1.0.0"
