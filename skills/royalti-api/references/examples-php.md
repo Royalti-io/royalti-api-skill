@@ -378,19 +378,20 @@ echo "Delivery status: {$status['data']['status']}\n";
 ## Source Creator Flow
 
 ```php
-function createSourceFromFile(RoyaltiClient $client, string $filePath): array
+function createSourceFromFile(string $apiKey, string $filePath): array
 {
+    $client = new RoyaltiClient($apiKey);
     $fileName = basename($filePath);
 
-    // 1. Analyze file
-    $ch = curl_init($client->baseUrl . '/source-creator/analyze');
+    // 1. Analyze file (multipart upload requires direct curl)
+    $ch = curl_init('https://api.royalti.io/source-creator/analyze');
     $postFields = [
         'file' => new \CURLFile($filePath, 'text/csv', $fileName),
     ];
     curl_setopt_array($ch, [
         CURLOPT_POST => true,
         CURLOPT_RETURNTRANSFER => true,
-        CURLOPT_HTTPHEADER => ["Authorization: Bearer {$client->apiKey}"],
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer {$apiKey}"],
         CURLOPT_POSTFIELDS => $postFields,
     ]);
     $analysis = json_decode(curl_exec($ch), true);

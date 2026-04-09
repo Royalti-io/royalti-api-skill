@@ -346,7 +346,7 @@ async function createSourceFromFile(file) {
     "https://api.royalti.io/source-creator/analyze",
     {
       method: "POST",
-      headers: { Authorization: `Bearer ${client.headers.Authorization}` },
+      headers: { Authorization: client.headers.Authorization },
       body: form,
     }
   ).then((r) => r.json());
