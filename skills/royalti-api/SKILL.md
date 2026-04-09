@@ -5,7 +5,7 @@ license: MIT
 compatibility: Works with Claude Code, Claude Desktop, Cursor, OpenAI Codex, GitHub Copilot, OpenClaw, Gemini CLI, Amp, Goose, Roo Code, OpenCode, Letta, and any tool supporting the Agent Skills open standard.
 metadata:
   author: Royalti.io
-  version: "2.0.0"
+  version: "2.1.0"
 ---
 
 # Royalti API v2.6 — Developer Reference
@@ -73,6 +73,24 @@ curl https://api.royalti.io/artist/ \
 curl https://api.royalti.io/asset \
   -H "Authorization: Bearer RUAK_def456..."
 ```
+
+### API Key Auth Resolution (Internals)
+
+Understanding how RWAK/RUAK keys resolve to a workspace context helps debug auth errors:
+
+```
+1. Token prefix detected as RWAK/RUAK (not JWT)
+2. ApiKeys table lookup → finds TenantId
+3. Tenants table lookup → finds workspace (must be status='active')
+4. Tenants.user field → used to find the owner TenantUser via TenantUser.findByPk()
+5. Owner TenantUser populates req.user for all downstream handlers
+```
+
+**Key detail:** `Tenants.user` must store a `TenantUser.id` (UUID), NOT a `User.id`. These are different tables with different PKs. If this field is wrong, the API returns `"Workspace user not found"` (HTTP 404) despite the API key being valid.
+
+The `Tenants.user` field is also used by:
+- **Accounting endpoints** — to exclude the workspace owner from payee/due calculations
+- **Admin auth** — to resolve workspace context for admin JWT tokens
 
 ### Other Auth Methods
 
@@ -184,7 +202,10 @@ POST /asset/bulksplits     # Assign splits to multiple assets
 
 ### Paginated List Response
 
+Response shapes vary by resource. Most use `data[]`, but some use resource-specific keys:
+
 ```json
+// Standard shape (labels, splits, payments, expenses, revenue, notifications)
 {
   "status": "success",
   "data": [ ... ],
@@ -192,7 +213,30 @@ POST /asset/bulksplits     # Assign splits to multiple assets
   "totalPages": 15,
   "currentPage": 1
 }
+
+// Users — uses "Users" key, no "status" field
+{
+  "message": "success",
+  "totalItems": 10,
+  "Users": [ ... ],
+  "totalPages": 1,
+  "currentPage": 1
+}
+
+// Artists — uses "Artists" key, includes "filteredItems"
+{
+  "totalItems": 50,
+  "Artists": [ ... ],
+  "totalPages": 5,
+  "currentPage": 1,
+  "filteredItems": 50
+}
+
+// Products — uses "Products" key
+// Assets — uses "data" key
 ```
+
+**Tip:** Always check for both `data` and the resource-specific key (e.g., `Users`, `Artists`, `Products`) when parsing list responses.
 
 ### Summary Response (v2.6.4+)
 
@@ -1375,19 +1419,35 @@ Events are user-scoped — only the user who uploaded the file receives processi
 
 ## 22. Key Data Models
 
+### Tenant (Workspace)
+
+```
+id (integer), name, email, user (varchar — must be a TenantUser.id UUID),
+status (active|inactive|suspended), plan, stripeCustomerId,
+bigqueryDataset, domain, uid
+```
+
+**Important:** The `user` field on `Tenants` stores a `TenantUser.id`, not a `User.id`. This is used by API key auth resolution and accounting owner-exclusion. See "API Key Auth Resolution" in Section 1.
+
 ### User (Global)
 
 ```
-id, email, isVerified, isAdmin, provider, googleId, linkedinId, facebookId
+id (UUID), email, isVerified, isAdmin, provider, googleId, linkedinId, facebookId
 ```
+
+A User can belong to multiple workspaces via TenantUser records.
 
 ### TenantUser (Workspace-Scoped)
 
 ```
-id, UserId, TenantId, firstName, lastName,
+id (UUID), UserId (FK → User.id), TenantId (FK → Tenant.id),
+firstName, lastName, email, nickName, profileImg,
 role: main_super_admin | super_admin | owner | admin | user | guest,
-userType, paymentSettings, permissions (JSONB)
+userType, paymentSettings, permissions (JSONB),
+ipi, externalId, country, phone, isActive
 ```
+
+**Key distinction:** `TenantUser.id` is the workspace-scoped identity used throughout the API (splits, payments, accounting). `User.id` (`UserId`) is the global auth identity. API responses for `/user/` return TenantUser records, not User records.
 
 ### Artist
 
@@ -1587,7 +1647,29 @@ Language-specific integration examples are available in the `references/` direct
 
 Load these files when the developer is working in a specific language.
 
-## 25. Further Reading
+## 25. Troubleshooting
+
+### Common Errors
+
+| Error Message | HTTP Code | Cause | Fix |
+|--------------|-----------|-------|-----|
+| `"Workspace user not found"` | 404 | API key's workspace has `Tenants.user` pointing to wrong ID (UserId instead of TenantUserId), or no owner TenantUser exists | Verify `Tenants.user` matches a `TenantUser.id` where `role='owner'` for that workspace |
+| `"Workspace not found"` | 404 | Tenant doesn't exist or `status != 'active'` | Check tenant status in admin panel |
+| `"Authorization token is missing"` | 401 | No `Authorization` header or malformed token | Ensure `Authorization: Bearer <token>` header is present |
+| `"Route does not exist"` | — | Wrong URL path (e.g., `/api/users` instead of `/user/`) | Check endpoint paths — no `/api` prefix, resource names are singular |
+| `"Access denied"` | 403 | Token valid but user lacks required role for endpoint | Check RBAC requirements for the endpoint |
+
+### Endpoint Path Gotchas
+
+- Paths use **singular** nouns: `/user/`, `/artist/`, `/asset`, `/product/`
+- Exceptions: `/labels/`, `/releases`, `/notifications/`, `/publishers`, `/writers`
+- Most paths require a **trailing slash**: `/user/` not `/user`
+- No `/api` prefix — endpoints are at the root: `https://api.royalti.io/artist/`
+- Sources endpoint: `/file/sources` (nested under files, not standalone)
+
+---
+
+## 26. Further Reading
 
 - **API Explorer:** [apidocs.royalti.io](https://apidocs.royalti.io)
 - **MCP Server:** [royalti.io/mcp](https://royalti.io/mcp) — AI assistant integration for direct API interaction
