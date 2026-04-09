@@ -260,3 +260,194 @@ app.post("/webhooks/royalti", (req, res) => {
 
 app.listen(3000);
 ```
+
+## Global Search
+
+```javascript
+const client = new RoyaltiClient("RWAK_your_key");
+
+// Search across artists, products, and assets
+const results = await client.get("/search", {
+  q: "drake",
+  types: "artist,product,asset",
+});
+
+results.data.forEach((item) => {
+  console.log(`[${item.type}] ${item.name} (${item.id})`);
+});
+
+// Get recent searches
+const recent = await client.get("/search/recent");
+```
+
+## DDEX Distribution
+
+```javascript
+const client = new RoyaltiClient("RWAK_your_key");
+
+// Generate ERN message for a release
+const ern = await client.post("/ddex/ern/generate", {
+  releaseId: "release-uuid",
+  providerId: "provider-uuid",
+});
+
+// Validate the message
+await client.post(`/ddex/messages/${ern.data.messageId}/validate`);
+
+// Deliver to DSP
+await client.post(`/ddex/delivery/deliver/${ern.data.messageId}`);
+
+// Poll delivery status
+const status = await client.get(
+  `/ddex/delivery/status/${ern.data.messageId}`
+);
+console.log(`Delivery status: ${status.data.status}`);
+```
+
+## AI Chat (Vercel AI SDK)
+
+```javascript
+// Using Vercel AI SDK useChat hook (React)
+import { useChat } from "ai/react";
+
+function ChatComponent({ accessToken }) {
+  const { messages, input, handleInputChange, handleSubmit } = useChat({
+    api: "https://api.royalti.io/ai/chat",
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+    },
+  });
+
+  return (
+    <div>
+      {messages.map((m) => (
+        <div key={m.id}>
+          <strong>{m.role}:</strong> {m.content}
+        </div>
+      ))}
+      <form onSubmit={handleSubmit}>
+        <input value={input} onChange={handleInputChange} />
+      </form>
+    </div>
+  );
+}
+```
+
+## Source Creator Flow
+
+```javascript
+const client = new RoyaltiClient("RWAK_your_key");
+
+async function createSourceFromFile(file) {
+  // 1. Analyze file
+  const form = new FormData();
+  form.append("file", file);
+  const analysis = await fetch(
+    "https://api.royalti.io/source-creator/analyze",
+    {
+      method: "POST",
+      headers: { Authorization: client.headers.Authorization },
+      body: form,
+    }
+  ).then((r) => r.json());
+
+  const sessionId = analysis.data.sessionId;
+
+  // 2. Get AI mapping suggestions
+  const mappings = await client.post("/source-creator/ai-map-columns", {
+    sessionId,
+  });
+
+  // 3. Confirm mappings
+  await client.put(`/source-creator/sessions/${sessionId}/mappings`, {
+    mappings: mappings.data.suggestions,
+  });
+
+  // 4. Generate and test queries
+  await client.post("/source-creator/generate-queries", { sessionId });
+  const test = await client.post("/source-creator/test-queries", {
+    sessionId,
+  });
+
+  if (test.data.passed) {
+    // 5. Save as draft
+    return await client.post("/source-creator/save", { sessionId });
+  }
+}
+```
+
+## Release Lifecycle
+
+```javascript
+const client = new RoyaltiClient("RWAK_your_key");
+
+async function createAndSubmitRelease() {
+  // 1. Create draft release
+  const release = await client.post("/releases", {
+    title: "New Album",
+    format: "Album",
+    display_artist: "Artist Name",
+    release_date: "2025-06-01",
+  });
+  const releaseId = release.data.id;
+
+  // 2. Upload artwork
+  const artworkForm = new FormData();
+  artworkForm.append("files", artworkFile);
+  await fetch(`https://api.royalti.io/releases/${releaseId}/media/files`, {
+    method: "POST",
+    headers: { Authorization: `Bearer RWAK_your_key` },
+    body: artworkForm,
+  });
+
+  // 3. Add tracks
+  const track = await client.post(`/releases/${releaseId}/tracks`, {
+    title: "Track 1",
+    ISRC: "USRC12345678",
+  });
+
+  // 4. Upload track audio
+  const audioForm = new FormData();
+  audioForm.append("file", audioFile);
+  await fetch(
+    `https://api.royalti.io/releases/${releaseId}/tracks/${track.data.id}/media/file`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer RWAK_your_key` },
+      body: audioForm,
+    }
+  );
+
+  // 5. Submit for review
+  await client.post(`/releases/${releaseId}/submit`);
+}
+```
+
+## Checklist & Data Quality
+
+```javascript
+const client = new RoyaltiClient("RWAK_your_key");
+
+// Check for missing catalog items
+const missingAssets = await client.get("/checklist/royaltyassets");
+console.log(`${missingAssets.data.length} assets in royalties but not in catalog`);
+
+// Import missing items
+if (missingAssets.data.length > 0) {
+  await client.post("/checklist/royaltyassets/import");
+}
+
+// Enrich assets with external metadata
+const job = await client.post("/checklist/assets/enrich");
+console.log(`Enrichment job started: ${job.data.jobId}`);
+
+// Poll enrichment status
+const status = await client.get(
+  `/checklist/enrichment/job/${job.data.jobId}`
+);
+
+// Approve enrichments
+await client.post("/checklist/enrichment/approve", {
+  ids: status.data.items.map((i) => i.id),
+});
+```

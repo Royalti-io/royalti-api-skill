@@ -1,20 +1,35 @@
 # Royalti.io API Skill
 
-An [Agent Skill](https://agentskills.io) that gives your AI assistant complete knowledge of the [Royalti.io](https://royalti.io) REST API v2.6. When installed, your agent can help you write integration code, debug API calls, set up webhooks, and navigate the 287-endpoint API surface without you having to explain the patterns each time.
+An [Agent Skill](https://agentskills.io) that gives your AI assistant complete knowledge of the [Royalti.io](https://royalti.io) REST API v2.6. When installed, your agent can help you write integration code, debug API calls, set up webhooks, manage DDEX distribution, and navigate the 400+ endpoint API surface without you having to explain the patterns each time.
 
 Works with **Claude Code**, **Claude Desktop**, **Cursor**, **OpenAI Codex**, **GitHub Copilot**, **OpenClaw**, **Gemini CLI**, **Amp**, **Goose**, **Roo Code**, **OpenCode**, **Letta**, and any tool that supports the [Agent Skills open standard](https://agentskills.io/specification).
 
 ## What's included
 
-- **Authentication** — Two-step JWT flow, API keys (RWAK/RUAK), OAuth, rate limits, RBAC roles
+- **Authentication** — Two-step JWT flow, API keys (RWAK/RUAK), OAuth, rate limits, RBAC roles, feature gating
 - **Request patterns** — Pagination, filtering, search, bulk operations
 - **Response patterns** — Success, error, paginated list, and summary response shapes
 - **Core resources** — CRUD patterns for users, artists, assets, products, splits, royalties, payments, files, labels, releases, and more
+- **Global search** — Cross-entity search across the entire catalog
+- **Royalty sources** — Source management, activation/deactivation
+- **Source creator** — AI-powered source creation wizard (analyze, map, generate, test, save)
+- **Checklist / data quality** — Validation checks, catalog enrichment, workflow orchestration
+- **DDEX distribution** — ERN/MEAD generation, message management, delivery, provider config
+- **AI chat agent** — Conversational AI with Vercel AI SDK streaming support
+- **Merlin addon** — Automated FTP royalty import with approval workflows
+- **Data shares** — Cross-tenant royalty data sharing
+- **Music publishing** — Publishers, writers, works, CWR export, sub-publishing
+- **Currency management** — Multi-currency support with tenant configuration
+- **Billing & subscriptions** — Stripe-backed subscription management
+- **Custom domains** — Cloudflare SaaS domain management
+- **Admin dashboard** — Workspace admin overview, worker management
+- **Audit trail** — Security and compliance audit logging
+- **Monitoring** — FUGA delivery and DDEX registry monitoring
 - **Analytics** — 11 royalty analytics endpoints with filtering and period comparison
-- **Webhooks** — 25 event types, payload structure, HMAC validation, delivery management
-- **WebSocket events** — Real-time file processing via Socket.io
-- **Data models** — User, Artist, Asset, Product, Split, Transaction schemas
-- **Integration patterns** — Step-by-step flows for catalog sync, file upload, analytics, and webhook setup
+- **Webhooks** — 25+ event types, payload structure, HMAC validation, delivery management
+- **WebSocket events** — Real-time file processing and workflow events via Socket.io
+- **Data models** — User, Artist, Asset, Product, Split, Transaction, Source, Publisher, Writer, Work schemas
+- **Integration patterns** — Step-by-step flows for catalog sync, file upload, source creation, DDEX distribution, data quality, analytics, release lifecycle, and webhook setup
 
 ## Installation
 
@@ -116,7 +131,7 @@ Once installed, the skill activates automatically when your conversation involve
             └── examples-php.md        # PHP examples
 ```
 
-Code examples cover authentication, CRUD operations, pagination, file upload, WebSocket events, and webhook receivers for each language.
+Code examples cover authentication, CRUD operations, pagination, file upload, WebSocket events, webhook receivers, global search, DDEX distribution, AI chat streaming, source creator flows, release lifecycle, and checklist/data quality for each language.
 
 ## Compatibility
 
