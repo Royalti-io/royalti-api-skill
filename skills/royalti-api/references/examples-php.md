@@ -331,3 +331,122 @@ switch ($data['event']) {
 http_response_code(200);
 echo json_encode(['received' => true]);
 ```
+
+## Global Search
+
+```php
+$client = new RoyaltiClient('RWAK_your_key');
+
+// Search across entities
+$results = $client->get('/search', [
+    'q' => 'drake',
+    'types' => 'artist,product,asset',
+]);
+
+foreach ($results['data'] as $item) {
+    printf("[%s] %s (%s)\n", $item['type'], $item['name'], $item['id']);
+}
+
+// Recent searches
+$recent = $client->get('/search/recent');
+```
+
+## DDEX Distribution
+
+```php
+$client = new RoyaltiClient('RWAK_your_key');
+
+// Generate ERN message
+$ern = $client->post('/ddex/ern/generate', [
+    'releaseId' => 'release-uuid',
+    'providerId' => 'provider-uuid',
+]);
+
+$messageId = $ern['data']['messageId'];
+
+// Validate
+$client->post("/ddex/messages/{$messageId}/validate");
+
+// Deliver
+$client->post("/ddex/delivery/deliver/{$messageId}");
+
+// Check status
+$status = $client->get("/ddex/delivery/status/{$messageId}");
+echo "Delivery status: {$status['data']['status']}\n";
+```
+
+## Source Creator Flow
+
+```php
+function createSourceFromFile(RoyaltiClient $client, string $filePath): array
+{
+    $fileName = basename($filePath);
+
+    // 1. Analyze file
+    $ch = curl_init($client->baseUrl . '/source-creator/analyze');
+    $postFields = [
+        'file' => new \CURLFile($filePath, 'text/csv', $fileName),
+    ];
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_HTTPHEADER => ["Authorization: Bearer {$client->apiKey}"],
+        CURLOPT_POSTFIELDS => $postFields,
+    ]);
+    $analysis = json_decode(curl_exec($ch), true);
+    curl_close($ch);
+
+    $sessionId = $analysis['data']['sessionId'];
+
+    // 2. Get AI mapping suggestions
+    $mappings = $client->post('/source-creator/ai-map-columns', [
+        'sessionId' => $sessionId,
+    ]);
+
+    // 3. Confirm mappings
+    $client->put("/source-creator/sessions/{$sessionId}/mappings", [
+        'mappings' => $mappings['data']['suggestions'],
+    ]);
+
+    // 4. Generate and test queries
+    $client->post('/source-creator/generate-queries', [
+        'sessionId' => $sessionId,
+    ]);
+    $test = $client->post('/source-creator/test-queries', [
+        'sessionId' => $sessionId,
+    ]);
+
+    if ($test['data']['passed']) {
+        // 5. Save as draft
+        return $client->post('/source-creator/save', [
+            'sessionId' => $sessionId,
+        ]);
+    }
+
+    return $test;
+}
+```
+
+## Checklist & Data Quality
+
+```php
+$client = new RoyaltiClient('RWAK_your_key');
+
+// Check for missing catalog items
+$missing = $client->get('/checklist/royaltyassets');
+echo count($missing['data']) . " assets in royalties but not in catalog\n";
+
+// Import missing items
+if (!empty($missing['data'])) {
+    $client->post('/checklist/royaltyassets/import');
+}
+
+// Enrich assets
+$job = $client->post('/checklist/assets/enrich');
+echo "Enrichment job: {$job['data']['jobId']}\n";
+
+// Poll and approve
+$status = $client->get("/checklist/enrichment/job/{$job['data']['jobId']}");
+$ids = array_column($status['data']['items'], 'id');
+$client->post('/checklist/enrichment/approve', ['ids' => $ids]);
+```

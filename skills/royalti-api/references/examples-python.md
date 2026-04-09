@@ -270,3 +270,142 @@ def watch_file_processing(access_token: str):
     )
     sio.wait()
 ```
+
+## Global Search
+
+```python
+client = RoyaltiClient("RWAK_your_key")
+
+# Search across entities
+results = client.get("/search", params={
+    "q": "drake",
+    "types": "artist,product,asset",
+})
+
+for item in results["data"]:
+    print(f"[{item['type']}] {item['name']} ({item['id']})")
+
+# Recent searches
+recent = client.get("/search/recent")
+```
+
+## DDEX Distribution
+
+```python
+client = RoyaltiClient("RWAK_your_key")
+
+# Generate ERN message
+ern = client.post("/ddex/ern/generate", data={
+    "releaseId": "release-uuid",
+    "providerId": "provider-uuid",
+})
+
+message_id = ern["data"]["messageId"]
+
+# Validate
+client.post(f"/ddex/messages/{message_id}/validate")
+
+# Deliver
+client.post(f"/ddex/delivery/deliver/{message_id}")
+
+# Check status
+status = client.get(f"/ddex/delivery/status/{message_id}")
+print(f"Delivery status: {status['data']['status']}")
+```
+
+## AI Chat (Streaming)
+
+```python
+import requests
+import json
+
+def stream_ai_chat(api_key: str, message: str, conversation_id: str = None):
+    """Stream AI chat response using server-sent events."""
+    payload = {
+        "messages": [{"role": "user", "content": message}],
+    }
+    if conversation_id:
+        payload["conversationId"] = conversation_id
+
+    response = requests.post(
+        "https://api.royalti.io/ai/chat",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        json=payload,
+        stream=True,
+    )
+    response.raise_for_status()
+
+    for line in response.iter_lines():
+        if line:
+            decoded = line.decode("utf-8")
+            if decoded.startswith("data: "):
+                data = json.loads(decoded[6:])
+                print(data.get("content", ""), end="", flush=True)
+```
+
+## Source Creator Flow
+
+```python
+import time
+
+def create_source_from_file(client: RoyaltiClient, file_path: str):
+    # 1. Analyze file
+    with open(file_path, "rb") as f:
+        analysis = requests.post(
+            f"{client.base_url}/source-creator/analyze",
+            headers={"Authorization": client.session.headers["Authorization"]},
+            files={"file": f},
+        ).json()
+
+    session_id = analysis["data"]["sessionId"]
+
+    # 2. Get AI mapping suggestions
+    mappings = client.post("/source-creator/ai-map-columns", data={
+        "sessionId": session_id,
+    })
+
+    # 3. Confirm mappings
+    client.put(f"/source-creator/sessions/{session_id}/mappings", data={
+        "mappings": mappings["data"]["suggestions"],
+    })
+
+    # 4. Generate and test queries
+    client.post("/source-creator/generate-queries", data={
+        "sessionId": session_id,
+    })
+    test = client.post("/source-creator/test-queries", data={
+        "sessionId": session_id,
+    })
+
+    if test["data"]["passed"]:
+        # 5. Save as draft
+        return client.post("/source-creator/save", data={
+            "sessionId": session_id,
+        })
+```
+
+## Checklist & Data Quality
+
+```python
+client = RoyaltiClient("RWAK_your_key")
+
+# Check for missing catalog items
+missing = client.get("/checklist/royaltyassets")
+print(f"{len(missing['data'])} assets in royalties but not in catalog")
+
+# Import missing items
+if missing["data"]:
+    client.post("/checklist/royaltyassets/import")
+
+# Enrich assets
+job = client.post("/checklist/assets/enrich")
+print(f"Enrichment job: {job['data']['jobId']}")
+
+# Poll and approve
+status = client.get(f"/checklist/enrichment/job/{job['data']['jobId']}")
+ids = [item["id"] for item in status["data"]["items"]]
+client.post("/checklist/enrichment/approve", data={"ids": ids})
+```
