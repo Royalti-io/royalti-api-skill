@@ -33,7 +33,19 @@ Works with **Claude Code**, **Claude Desktop**, **Cursor**, **OpenAI Codex**, **
 
 ## Installation
 
-### Claude Code
+### Claude Code (plugin marketplace)
+
+```bash
+/plugin marketplace add Royalti-io/royalti-skills
+/plugin install royalti-api
+```
+
+This skill is listed in the [Royalti Skills](https://github.com/Royalti-io/royalti-skills)
+catalog while continuing to live in this repository. Note that `npx skills add` against that
+catalog will **not** pick this skill up — the CLI reads that repository's own `skills/`
+directory. Use the marketplace command above, or one of the direct methods below.
+
+### Claude Code (manual)
 
 ```bash
 # Clone and copy to your project
@@ -122,6 +134,8 @@ Once installed, the skill activates automatically when your conversation involve
 .
 ├── README.md
 ├── LICENSE
+├── .claude-plugin/
+│   └── plugin.json                    # Plugin manifest (Claude Code)
 └── skills/
     └── royalti-api/
         ├── SKILL.md                   # The skill (Agent Skills standard)

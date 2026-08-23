@@ -1,0 +1,21 @@
+{
+  "name": "royalti-api",
+  "version": "2.1.0",
+  "description": "Royalti.io REST API v2.6 developer reference. Authentication, CRUD patterns, pagination, error handling, webhooks, WebSocket events, data models, DDEX distribution, AI chat, source creator, global search, checklist workflows, music publishing and billing.",
+  "author": "Royalti.io",
+  "license": "MIT",
+  "homepage": "https://github.com/Royalti-io/royalti-api-skill",
+  "skills": [
+    "skills/royalti-api"
+  ],
+  "keywords": [
+    "royalti",
+    "api",
+    "rest",
+    "music",
+    "rights",
+    "royalties",
+    "ddex",
+    "webhooks"
+  ]
+}
